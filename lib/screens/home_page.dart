@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:purple/functions/functions.dart';
+import 'package:purple/screens/detail_screen.dart';
+import 'package:purple/screens/full_screen.dart';
 import 'package:purple/utils/dynamic_sizes.dart';
 
 class HomePage extends StatelessWidget {
@@ -159,7 +161,7 @@ class HomePage extends StatelessWidget {
                     future: getLatestWallpapers(),
                     builder: (context, AsyncSnapshot snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
-                        return customList(context, 0.6, 0.4,
+                        return customList(context, 0.55, 0.4,
                             snapshot: snapshot.data);
                       } else {
                         return const Text("Loading");
@@ -208,20 +210,38 @@ class HomePage extends StatelessWidget {
                 : 5,
         scrollDirection: Axis.horizontal,
         itemBuilder: (BuildContext context, int index) {
-          return Container(
-            margin: EdgeInsets.only(right: Sizes().width(context, 0.03)),
-            decoration: BoxDecoration(
-                image: snapshot != ""
-                    ? DecorationImage(
-                        image: NetworkImage(snapshot[index]["largeImageURL"]),
-                        fit: BoxFit.cover)
-                    : null,
-                color:
-                    providedValue != "" ? providedValue[index] : Colors.white,
-                borderRadius:
-                    BorderRadius.circular(Sizes().width(context, 0.04))),
-            height: Sizes().heigth(context, heigth),
-            width: Sizes().width(context, width),
+          return InkWell(
+            onTap: () {
+              if (snapshot != "") {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => FullScreen(
+                              img: snapshot[index]["largeImageURL"],
+                              id: snapshot[index]["id"].toString(),
+                            )));
+              }
+            },
+            child: Hero(
+              tag: snapshot != "" ? snapshot[index]["id"].toString() : index,
+              child: Container(
+                margin: EdgeInsets.only(right: Sizes().width(context, 0.03)),
+                decoration: BoxDecoration(
+                    image: snapshot != ""
+                        ? DecorationImage(
+                            image:
+                                NetworkImage(snapshot[index]["largeImageURL"]),
+                            fit: BoxFit.cover)
+                        : null,
+                    color: providedValue != ""
+                        ? providedValue[index]
+                        : Colors.white,
+                    borderRadius:
+                        BorderRadius.circular(Sizes().width(context, 0.04))),
+                height: Sizes().heigth(context, heigth),
+                width: Sizes().width(context, width),
+              ),
+            ),
           );
         },
       ),
@@ -241,21 +261,30 @@ class HomePage extends StatelessWidget {
               Sizes().width(context, 0.5) / Sizes().width(context, 0.3)),
       itemCount: categoryList.length,
       itemBuilder: (BuildContext context, int index) {
-        return Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-              image: DecorationImage(
-                  colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(0.4), BlendMode.darken),
-                  image: NetworkImage(categoryList[index]["img"]),
-                  fit: BoxFit.cover),
-              color: Colors.white,
-              borderRadius:
-                  BorderRadius.circular(Sizes().width(context, 0.04))),
-          child: Text(
-            categoryList[index]["value"],
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold),
+        return InkWell(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        DetailScreen(category: categoryList[index]["value"])));
+          },
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    colorFilter: ColorFilter.mode(
+                        Colors.black.withOpacity(0.4), BlendMode.darken),
+                    image: NetworkImage(categoryList[index]["img"]),
+                    fit: BoxFit.cover),
+                color: Colors.white,
+                borderRadius:
+                    BorderRadius.circular(Sizes().width(context, 0.04))),
+            child: Text(
+              categoryList[index]["value"],
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
+            ),
           ),
         );
       },
