@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:purple/functions/functions.dart';
 import 'package:purple/screens/full_screen.dart';
+import 'package:purple/widgets/loader.dart';
 
 import '../utils/dynamic_sizes.dart';
 
 class DetailScreen extends StatelessWidget {
   final String category;
-  const DetailScreen({Key? key, required this.category}) : super(key: key);
+  final Future<dynamic>? future;
+  const DetailScreen({Key? key, required this.category, required this.future})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +32,12 @@ class DetailScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: FutureBuilder(
-          future: getCategoryImages(category.toLowerCase()),
+          future: future,
           builder: (context, AsyncSnapshot snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               return customGridDetail(context, snapshot.data);
             } else {
-              return const Text("Loading");
+              return const Loader();
             }
           }),
     );
@@ -55,11 +57,16 @@ class DetailScreen extends StatelessWidget {
           return InkWell(
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => FullScreen(
-                          img: snapshot[index]["largeImageURL"],
-                          id: snapshot[index]["id"].toString())));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FullScreen(
+                      img: snapshot[index]["largeImageURL"],
+                      id: snapshot[index]["id"].toString(),
+                      user: snapshot[index]["user"].toString(),
+                      userImage: snapshot[index]["userImageURL"].toString(),
+                      tags: snapshot[index]["tags"].toString()),
+                ),
+              );
             },
             child: Hero(
               tag: snapshot[index]["id"].toString(),
